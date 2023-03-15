@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TutoRalloLifecycle</string>
+    <string name="current_state_text">The current state list is :</string>
+    <string name="show_diagram_text">SHOW DIAGRAM</string>
+</resources>
