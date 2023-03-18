@@ -2,6 +2,7 @@ package com.example.tutorallotaquins;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,35 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     private int currentEmptyButtonIndex;
 
-    //private Button[] buttonsPositionsOnScreen;
-
     private Direction direction;
-
-    private class NumberButtonClick implements View.OnClickListener {
-
-        int indexOfButton;
-
-        public NumberButtonClick(int indexOfButton) {
-            this.indexOfButton = indexOfButton;
-        }
-
-        @Override
-        public void onClick(View v) {
-            if (indexOfButton % 3 != 0 && currentEmptyButtonIndex == indexOfButton + 1) { // if not last column
-                direction = Direction.R;
-            } else if (indexOfButton % 3 != 1 && currentEmptyButtonIndex == indexOfButton - 1) { // if not first column
-                direction = Direction.L;
-            } else if (indexOfButton < 7 && currentEmptyButtonIndex == indexOfButton + 3) { // if not last line
-                direction = Direction.B;
-            } else if (indexOfButton > 3 && currentEmptyButtonIndex == indexOfButton - 3) { // if not first line
-                direction = Direction.T;
-            }
-            else {
-                direction = Direction.NO_MOVE_POSSIBLE;
-            }
-            System.out.println(direction.name());
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
         // it's useless/the same in my case.
         this.direction = Direction.NO_MOVE_POSSIBLE;
         this.currentEmptyButtonIndex = 8;
-        // this.buttonsPositionsOnScreen = new Button[]{BT_1, BT_2, BT_3, BT_4, BT_5, BT_6, BT_7, BT_8, BT_9};
         this.numberButtons = new Button[]{BT_1, BT_2, BT_3, BT_4, BT_5, BT_6, BT_7, BT_8, BT_9};
 
         this.BT_startGame.setOnClickListener(view -> {
@@ -79,24 +51,59 @@ public class MainActivity extends AppCompatActivity {
         this.BT_startGame = findViewById(R.id.BT_start_game);
     }
 
-    private void moveButton(Button button, char direction) {
+    private class NumberButtonClick implements View.OnClickListener {
 
+        int indexOfButton;
+
+        public NumberButtonClick(int indexOfButton) {
+            this.indexOfButton = indexOfButton;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (indexOfButton % 3 != 2 && currentEmptyButtonIndex == indexOfButton + 1) { // if not last column
+                direction = Direction.R;
+            } else if (indexOfButton % 3 != 0 && currentEmptyButtonIndex == indexOfButton - 1) { // if not first column
+                direction = Direction.L;
+            } else if (indexOfButton <= 5 && currentEmptyButtonIndex == indexOfButton + 3) { // if not last line
+                direction = Direction.B;
+            } else if (indexOfButton >=3 && currentEmptyButtonIndex == indexOfButton - 3) { // if not first line
+                direction = Direction.T;
+            }
+            else {
+                direction = Direction.NO_MOVE_POSSIBLE;
+            }
+            if(direction != Direction.NO_MOVE_POSSIBLE){
+                moveButton((Button)v, direction);
+            }
+        }
+    }
+
+    private void moveButton(Button button, Direction direction) { // DIRECTION is a type of mine
+        int currentButtonIndex = -1;
+        switch (direction){
+            case T: currentButtonIndex = currentEmptyButtonIndex + 3; break;
+            case B: currentButtonIndex = currentEmptyButtonIndex - 3; break;
+            case L: currentButtonIndex = currentEmptyButtonIndex + 1; break;
+            case R: currentButtonIndex = currentEmptyButtonIndex - 1; break;
+        }
+        CharSequence tmpCurrentStrNumberButton = button.getText();
+        Object tmpCurrentButtonTag = button.getTag();
+
+        button.setText(this.numberButtons[currentEmptyButtonIndex].getText());
+        button.setTag(this.numberButtons[currentEmptyButtonIndex].getTag());
+        button.setVisibility(View.INVISIBLE);
+        button.setEnabled(false);
+
+        this.numberButtons[currentEmptyButtonIndex].setText(tmpCurrentStrNumberButton);
+        this.numberButtons[currentEmptyButtonIndex].setTag(tmpCurrentButtonTag);
+        this.numberButtons[currentEmptyButtonIndex].setVisibility(View.VISIBLE);
+        this.numberButtons[currentEmptyButtonIndex].setEnabled(true);
+
+        this.currentEmptyButtonIndex = currentButtonIndex;
     }
 
     public enum Direction {
         T, B, L, R, NO_MOVE_POSSIBLE
     }
-
-    public enum ButtonNumber {
-        ONE(R.string.value_1), TWO(R.string.value_2), THREE(R.string.value_3), FOUR(R.string.value_4),
-        FIVE(R.string.value_5), SIX(R.string.value_6), EVEN(R.string.value_7), EIGHT(R.string.value_8),
-        NINE(R.string.value_9);
-
-        final String strNumber;
-
-        ButtonNumber(int strOfNumber) {
-            this.strNumber = String.valueOf(strOfNumber);
-        }
-    }
-
 }
