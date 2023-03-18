@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TutoRalloTaquins</string>
+    <string name="start_game">START GAME</string>
+    <string name="android_est_taquin">Android est taquin</string>
+</resources>
