@@ -2,4 +2,13 @@
     <string name="app_name">TutoRalloTaquins</string>
     <string name="start_game">START GAME</string>
     <string name="android_est_taquin">Android est taquin</string>
+    <string name="value_1">1</string>
+    <string name="value_2">2</string>
+    <string name="value_3">3</string>
+    <string name="value_4">4</string>
+    <string name="value_5">5</string>
+    <string name="value_6">6</string>
+    <string name="value_7">7</string>
+    <string name="value_8">8</string>
+    <string name="value_9">9</string>
 </resources>
