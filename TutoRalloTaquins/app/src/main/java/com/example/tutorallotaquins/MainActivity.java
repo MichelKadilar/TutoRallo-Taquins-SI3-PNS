@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
                     button.setText(numberButtons[currentEmptyButtonIndex].getText());
                     button.setTag(numberButtons[currentEmptyButtonIndex].getTag());
                     button.setVisibility(View.INVISIBLE);
-                    //button.setEnabled(false);
+                    button.setEnabled(false);
 
 
                     numberButtons[currentEmptyButtonIndex].setText(tmpCurrentStrNumberButton);
