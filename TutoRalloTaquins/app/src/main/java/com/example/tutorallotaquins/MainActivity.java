@@ -2,7 +2,6 @@ package com.example.tutorallotaquins;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
@@ -24,23 +23,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.getActivityLayoutElements();
-        // I wanted to put the next three lines in a constructor but after some researches it seems like
-        // it's useless/the same in my case.
+        // Je voulais mettre les 3 prochaines lignes dans un constructeur, mais après quelques
+        // recherches il semble que ça soit inutile dans mon cas
         this.direction = Direction.NO_MOVE_POSSIBLE;
-        this.currentEmptyButtonIndex = 8;
+        this.currentEmptyButtonIndex = 8; //Indice du bouton numéroté "9".
         this.numberButtons = new Button[]{BT_1, BT_2, BT_3, BT_4, BT_5, BT_6, BT_7, BT_8, BT_9};
 
-        this.BT_startGame.setOnClickListener(view -> {
-            BT_startGame.setEnabled(false);
-            BT_startGame.setVisibility(View.INVISIBLE);
-            for (int i = 0; i < this.numberButtons.length; i++) {
+        this.BT_startGame.setOnClickListener(view -> { // on écoute le bouton "start game" pour détecter les clics
+            BT_startGame.setEnabled(false); // on désactive le bouton start game
+            BT_startGame.setVisibility(View.INVISIBLE); // on rend invisible le bouton start game
+            for (int i = 0; i < this.numberButtons.length-1; i++) { // on rend cliquables
+                // tous les boutons sauf le 9eme
                 this.numberButtons[i].setEnabled(true);
                 this.numberButtons[i].setOnClickListener(new NumberButtonClick(i));
             }
         });
     }
 
-    private void getActivityLayoutElements() {
+    private void getActivityLayoutElements() { // On va récupèrer tous les éléments affichés
+        // sur l'écran (depuis le XML)
         this.BT_1 = findViewById(R.id.BT_1);
         this.BT_2 = findViewById(R.id.BT_2);
         this.BT_3 = findViewById(R.id.BT_3);
@@ -54,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class NumberButtonClick implements View.OnClickListener {
+        // on écoute les boutons numérotés pour réagir aux clics
+        // On définit une classe pour généraliser le comportement au clic et pouvoir le dupliquer facilement
+        // à tous les boutons sans duplication de code
 
         int indexOfButton;
 
@@ -62,19 +66,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onClick(View v) {
-            if (indexOfButton % 3 != 2 && currentEmptyButtonIndex == indexOfButton + 1) { // if not last column
-                direction = Direction.R;
-            } else if (indexOfButton % 3 != 0 && currentEmptyButtonIndex == indexOfButton - 1) { // if not first column
-                direction = Direction.L;
-            } else if (indexOfButton <= 5 && currentEmptyButtonIndex == indexOfButton + 3) { // if not last line
-                direction = Direction.B;
-            } else if (indexOfButton >= 3 && currentEmptyButtonIndex == indexOfButton - 3) { // if not first line
-                direction = Direction.T;
+        public void onClick(View v) { // Au clic, on met à jour la direction
+            if (indexOfButton % 3 != 2 && currentEmptyButtonIndex == indexOfButton + 1) { // si pas dernière colonne
+                direction = Direction.RIGHT;
+            } else if (indexOfButton % 3 != 0 && currentEmptyButtonIndex == indexOfButton - 1) { // si pas première colonne
+                direction = Direction.LEFT;
+            } else if (indexOfButton <= 5 && currentEmptyButtonIndex == indexOfButton + 3) { // si pas dernière ligne
+                direction = Direction.BOTTOM;
+            } else if (indexOfButton >= 3 && currentEmptyButtonIndex == indexOfButton - 3) { // si pas première ligne
+                direction = Direction.TOP;
             } else {
                 direction = Direction.NO_MOVE_POSSIBLE;
             }
-            if (direction != Direction.NO_MOVE_POSSIBLE) {
+            if (direction != Direction.NO_MOVE_POSSIBLE) { // si un mouvement est possible...
                 moveButton((Button) v, direction);
             }
         }
@@ -84,37 +88,40 @@ public class MainActivity extends AppCompatActivity {
         int currentButtonIndex = -1;
         Animation animation = null;
         switch (direction) {
-            case T: {
+            case TOP: {
                 currentButtonIndex = currentEmptyButtonIndex + 3;
                 animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.up);
                 break;
             }
-            case B: {
+            case BOTTOM: {
                 currentButtonIndex = currentEmptyButtonIndex - 3;
-                animation =AnimationUtils.loadAnimation(MainActivity.this, R.anim.down);
+                animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.down);
                 break;
             }
-            case L: {
+            case LEFT: {
                 currentButtonIndex = currentEmptyButtonIndex + 1;
-                animation =AnimationUtils.loadAnimation(MainActivity.this, R.anim.left);
+                animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.left);
                 break;
             }
-            case R: {
+            case RIGHT: {
                 currentButtonIndex = currentEmptyButtonIndex - 1;
-                animation =AnimationUtils.loadAnimation(MainActivity.this, R.anim.right);
+                animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.right);
                 break;
             }
         }
-        if (animation != null) {
+        if (animation != null) { // obligation car animation n'est pas certain d'être initialisé et non nul
 
             int finalCurrentButtonIndex = currentButtonIndex;
-            animation.setAnimationListener(new Animation.AnimationListener() {
+            animation.setAnimationListener(new Animation.AnimationListener() { // on écoute l'animation pour réagir
+                // lorsqu'elle sera en exécution
                 @Override
                 public void onAnimationStart(Animation animation) {
                 }
 
                 @Override
-                public void onAnimationEnd(Animation animation) { // A la fin de l'animation, on interverti les deux boutons
+                public void onAnimationEnd(Animation animation) {
+                    // A la fin de l'animation, on interverti les informations des deux boutons
+
                     CharSequence tmpCurrentStrNumberButton = button.getText();
                     Object tmpCurrentButtonTag = button.getTag();
 
@@ -140,7 +147,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public enum Direction {
-        T, B, L, R, NO_MOVE_POSSIBLE
+    public enum Direction { // Enum décrivant les directions possibles
+        // '\0' = NO_MOVE_POSSIBLE
+        // '->' = RIGHT
+        // '<-' = LEFT, etc
+        TOP, BOTTOM, LEFT, RIGHT, NO_MOVE_POSSIBLE
     }
 }
