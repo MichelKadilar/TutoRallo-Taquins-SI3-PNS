@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
@@ -67,40 +69,76 @@ public class MainActivity extends AppCompatActivity {
                 direction = Direction.L;
             } else if (indexOfButton <= 5 && currentEmptyButtonIndex == indexOfButton + 3) { // if not last line
                 direction = Direction.B;
-            } else if (indexOfButton >=3 && currentEmptyButtonIndex == indexOfButton - 3) { // if not first line
+            } else if (indexOfButton >= 3 && currentEmptyButtonIndex == indexOfButton - 3) { // if not first line
                 direction = Direction.T;
-            }
-            else {
+            } else {
                 direction = Direction.NO_MOVE_POSSIBLE;
             }
-            if(direction != Direction.NO_MOVE_POSSIBLE){
-                moveButton((Button)v, direction);
+            if (direction != Direction.NO_MOVE_POSSIBLE) {
+                moveButton((Button) v, direction);
             }
         }
     }
 
     private void moveButton(Button button, Direction direction) { // DIRECTION is a type of mine
         int currentButtonIndex = -1;
-        switch (direction){
-            case T: currentButtonIndex = currentEmptyButtonIndex + 3; break;
-            case B: currentButtonIndex = currentEmptyButtonIndex - 3; break;
-            case L: currentButtonIndex = currentEmptyButtonIndex + 1; break;
-            case R: currentButtonIndex = currentEmptyButtonIndex - 1; break;
+        Animation animation = null;
+        switch (direction) {
+            case T: {
+                currentButtonIndex = currentEmptyButtonIndex + 3;
+                animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.up);
+                break;
+            }
+            case B: {
+                currentButtonIndex = currentEmptyButtonIndex - 3;
+                animation =AnimationUtils.loadAnimation(MainActivity.this, R.anim.down);
+                break;
+            }
+            case L: {
+                currentButtonIndex = currentEmptyButtonIndex + 1;
+                animation =AnimationUtils.loadAnimation(MainActivity.this, R.anim.left);
+                break;
+            }
+            case R: {
+                currentButtonIndex = currentEmptyButtonIndex - 1;
+                animation =AnimationUtils.loadAnimation(MainActivity.this, R.anim.right);
+                break;
+            }
         }
-        CharSequence tmpCurrentStrNumberButton = button.getText();
-        Object tmpCurrentButtonTag = button.getTag();
+        if (animation != null) {
 
-        button.setText(this.numberButtons[currentEmptyButtonIndex].getText());
-        button.setTag(this.numberButtons[currentEmptyButtonIndex].getTag());
-        button.setVisibility(View.INVISIBLE);
-        button.setEnabled(false);
+            int finalCurrentButtonIndex = currentButtonIndex;
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
 
-        this.numberButtons[currentEmptyButtonIndex].setText(tmpCurrentStrNumberButton);
-        this.numberButtons[currentEmptyButtonIndex].setTag(tmpCurrentButtonTag);
-        this.numberButtons[currentEmptyButtonIndex].setVisibility(View.VISIBLE);
-        this.numberButtons[currentEmptyButtonIndex].setEnabled(true);
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    // Swap the text and tag between the clicked button and the empty button
+                    CharSequence tmpCurrentStrNumberButton = button.getText();
+                    Object tmpCurrentButtonTag = button.getTag();
 
-        this.currentEmptyButtonIndex = currentButtonIndex;
+                    button.setText(numberButtons[currentEmptyButtonIndex].getText());
+                    button.setTag(numberButtons[currentEmptyButtonIndex].getTag());
+                    button.setVisibility(View.INVISIBLE);
+                    button.setEnabled(false);
+
+
+                    numberButtons[currentEmptyButtonIndex].setText(tmpCurrentStrNumberButton);
+                    numberButtons[currentEmptyButtonIndex].setTag(tmpCurrentButtonTag);
+                    numberButtons[currentEmptyButtonIndex].setVisibility(View.VISIBLE);
+                    numberButtons[currentEmptyButtonIndex].setEnabled(true);
+
+                    currentEmptyButtonIndex = finalCurrentButtonIndex;
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
+            button.startAnimation(animation);
+        }
     }
 
     public enum Direction {
