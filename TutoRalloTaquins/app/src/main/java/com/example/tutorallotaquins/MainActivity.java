@@ -8,6 +8,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
+import java.util.Random;
+
 public class MainActivity extends AppCompatActivity {
 
     private Button BT_startGame;
@@ -29,11 +31,12 @@ public class MainActivity extends AppCompatActivity {
         this.currentEmptyButtonIndex = 8; //Indice du bouton numéroté "9".
         this.numberButtons = new Button[]{BT_1, BT_2, BT_3, BT_4, BT_5, BT_6, BT_7, BT_8, BT_9};
 
+        shuffleButtons(10);
+
         this.BT_startGame.setOnClickListener(view -> { // on écoute le bouton "start game" pour détecter les clics
             BT_startGame.setEnabled(false); // on désactive le bouton start game
             BT_startGame.setVisibility(View.INVISIBLE); // on rend invisible le bouton start game
-            for (int i = 0; i < this.numberButtons.length-1; i++) { // on rend cliquables
-                // tous les boutons sauf le 9eme
+            for (int i = 0; i < this.numberButtons.length; i++) { // on rend cliquables tous les boutons
                 this.numberButtons[i].setEnabled(true);
                 this.numberButtons[i].setOnClickListener(new NumberButtonClick(i));
             }
@@ -53,6 +56,40 @@ public class MainActivity extends AppCompatActivity {
         this.BT_9 = findViewById(R.id.BT_9);
         this.BT_startGame = findViewById(R.id.BT_start_game);
     }
+
+    private void shuffleButtons(int levelSuffle) {
+        int numberOfShuffle = levelSuffle * 2; // rendre pair le niveau de mélange
+
+        Button[] allNumberedButtons = this.numberButtons;
+
+        Random random = new Random();
+
+        while (numberOfShuffle > 0) {
+            int randomIndex = random.nextInt(allNumberedButtons.length-1); // entre 0 et 7 inclus
+            Button button1 = allNumberedButtons[randomIndex];
+            if (randomIndex % 3 == 0) { // premiere colonne
+                int indexOfRightButton = randomIndex + 1;
+                Button button2 = allNumberedButtons[indexOfRightButton]; // button on the right of button1
+                CharSequence tmpButton1Text = button1.getText();
+                button1.setText(button2.getText());
+                button2.setText(tmpButton1Text);
+            } else if (randomIndex == 1 || randomIndex == 2 || randomIndex == 4) {
+                int indexOfBottomButton = randomIndex + 3;
+                Button button2 = allNumberedButtons[indexOfBottomButton]; // button on the bottom of button1
+                CharSequence tmpButton1Text = button1.getText();
+                button1.setText(button2.getText());
+                button2.setText(tmpButton1Text);
+            } else {
+                int indexOfLeftButton = randomIndex - 1;
+                Button button2 = allNumberedButtons[indexOfLeftButton]; // button on the left of button1
+                CharSequence tmpButton1Text = button1.getText();
+                button1.setText(button2.getText());
+                button2.setText(tmpButton1Text);
+            }
+            numberOfShuffle--;
+        }
+    }
+
 
     private class NumberButtonClick implements View.OnClickListener {
         // on écoute les boutons numérotés pour réagir aux clics
@@ -128,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
                     button.setText(numberButtons[currentEmptyButtonIndex].getText());
                     button.setTag(numberButtons[currentEmptyButtonIndex].getTag());
                     button.setVisibility(View.INVISIBLE);
-                    button.setEnabled(false);
+                    //button.setEnabled(false);
 
 
                     numberButtons[currentEmptyButtonIndex].setText(tmpCurrentStrNumberButton);
