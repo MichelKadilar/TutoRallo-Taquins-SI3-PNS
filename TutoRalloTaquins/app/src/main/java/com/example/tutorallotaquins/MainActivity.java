@@ -114,8 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onAnimationEnd(Animation animation) {
-                    // Swap the text and tag between the clicked button and the empty button
+                public void onAnimationEnd(Animation animation) { // A la fin de l'animation, on interverti les deux boutons
                     CharSequence tmpCurrentStrNumberButton = button.getText();
                     Object tmpCurrentButtonTag = button.getTag();
 
